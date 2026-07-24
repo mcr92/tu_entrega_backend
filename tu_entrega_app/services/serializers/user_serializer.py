@@ -22,3 +22,9 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["id", "name", "phone", "lastTimeInSystem", "is_admin"]
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+        
+    class Meta:
+        model = User
+        fields = ["name", "phone"]

@@ -1,0 +1,19 @@
+from django.db import models
+from tu_entrega_app.utils.constants import ApiConstants
+from tu_entrega_app.models import Contact
+
+class Ticket(models.Model):
+    product = models.CharField(max_length=100)
+    price = models.DecimalField(max_digits=5, decimal_places=2)
+    currency = models.IntegerField(db_index=True, null=False, default=1, choices=ApiConstants.Currency.choices())
+    payment_method = models.IntegerField(db_index=True, null=False, default=1, choices=ApiConstants.Payment_Method.choices())
+    price_save = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True) ## Valor que debe dejar el mensajero de fondo
+
+    delivery_contact = models.ForeignKey(Contact, on_delete=models.RESTRICT, related_name= 'delivery_contact') 
+    collection_contact = models.ForeignKey(Contact, on_delete=models.RESTRICT, related_name= 'collection_contact')
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.product}_{self.id}"

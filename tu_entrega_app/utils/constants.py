@@ -90,6 +90,14 @@ class AdminNotifyEvents(Enum):
     ADMIN_EVENT_NEW_USER = 'new_user', 'New user'
     ADMIN_EVENT_NEW_RELOAD = ('new_reload', 'New Reload')
 
+class Currency(Enum):
+    USD_CURRENCY = 1, 'USD'
+    CUP_CURRENCY = 2 , 'CUP'
+
+class Payment_Method(Enum):
+    EFECTIVO = 1, 'Efectivo'
+    TRANSFERENCIA = 2 , 'CUP'
+
 class ApiConstants:
     DEFAULT_CURRENCY = 'usd'
     DEFAULT_LANGUAGE = 'es'
@@ -99,4 +107,5 @@ class ApiConstants:
     # URL_WHATSAPP = os.getenv("URL_WHATSAPP")
     # ADMIN_EMAIL = os.getenv("ADMIN_EMAIL")
     AdminNotifyEvents = EnumBehavior.set_enum(AdminNotifyEvents)
-    
+    Currency = EnumBehavior.set_enum(Currency)
+    Payment_Method = EnumBehavior.set_enum(Payment_Method)
