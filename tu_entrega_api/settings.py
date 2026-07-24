@@ -31,7 +31,9 @@ SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
 PRODUCTION = os.getenv("PRODUCTION", "False") == "True"
 DEBUG = not PRODUCTION
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "tuentregabackend.pythonanywhere.com"
+]
 
 
 # Application definition
