@@ -96,7 +96,14 @@ class Currency(Enum):
 
 class Payment_Method(Enum):
     EFECTIVO = 1, 'Efectivo'
-    TRANSFERENCIA = 2 , 'CUP'
+    TRANSFERENCIA = 2 , 'Transferencia'
+
+class Status_Ticket(Enum):
+    PENDIENTE = 1, 'Pendiente'
+    ACEPTADO = 2, 'Aceptado'
+    ENCAMINO = 3, 'En Camino'
+    ENTREGADO = 4, 'Entregado'
+    CANCELADO = 5, 'Cancelado'
 
 class ApiConstants:
     DEFAULT_CURRENCY = 'usd'
@@ -109,3 +116,4 @@ class ApiConstants:
     AdminNotifyEvents = EnumBehavior.set_enum(AdminNotifyEvents)
     Currency = EnumBehavior.set_enum(Currency)
     Payment_Method = EnumBehavior.set_enum(Payment_Method)
+    Status_Ticket = EnumBehavior.set_enum(Status_Ticket)

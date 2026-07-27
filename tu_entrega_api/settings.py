@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 import os, json
 from pathlib import Path
+from datetime import timedelta
 from firebase_admin import credentials
 from firebase_admin import initialize_app
 
@@ -32,6 +33,7 @@ PRODUCTION = os.getenv("PRODUCTION", "False") == "True"
 DEBUG = not PRODUCTION
 
 ALLOWED_HOSTS = [
+    "localhost",
     "tuentregabackend.pythonanywhere.com"
 ]
 
@@ -150,7 +152,16 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',  # Debe estar presente
+    ),
+
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema'
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=7),  # Ajusta según necesites
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=15),
 }
 
 SPECTACULAR_SETTINGS = {
