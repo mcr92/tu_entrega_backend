@@ -105,6 +105,12 @@ if PRODUCTION:
             'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
             'HOST': os.environ.get('POSTGRES_HOST'),
             'PORT': os.environ.get('POSTGRES_PORT', 5432),
+            'OPTIONS': {
+                    'sslmode': 'require',
+                    'connect_timeout': 10,
+                },
+            # 👇 Forzar IPv4
+            'HOST_ADDR': os.environ.get('POSTGRES_HOST'),
         }
     }
 
