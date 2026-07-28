@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
-import os, json
+import os, json, dj_database_url
 from pathlib import Path
 from datetime import timedelta
 from firebase_admin import credentials
@@ -99,18 +99,11 @@ DATABASES = {
 if PRODUCTION:
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ.get('POSTGRES_DB'),
-            'USER': os.environ.get('POSTGRES_USER'),
-            'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-            'HOST': os.environ.get('POSTGRES_HOST'),
-            'PORT': os.environ.get('POSTGRES_PORT', 5432),
-            'OPTIONS': {
-                    'sslmode': 'require',
-                    'connect_timeout': 10,
-                },
-            # 👇 Forzar IPv4
-            'HOST_ADDR': os.environ.get('POSTGRES_HOST'),
+            'default': dj_database_url.config(
+                default=os.environ.get('DATABASE_URL'),
+                conn_max_age=600,
+                ssl_require=True
+            )
         }
     }
 
