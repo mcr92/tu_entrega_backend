@@ -34,7 +34,8 @@ DEBUG = not PRODUCTION
 
 ALLOWED_HOSTS = [
     "localhost",
-    "tuentregabackend.pythonanywhere.com"
+    "tuentregabackend.pythonanywhere.com",
+    "tu-entrega-backend.onrender.com"
 ]
 
 
