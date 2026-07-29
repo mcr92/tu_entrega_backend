@@ -1,7 +1,7 @@
 from django.db import models
 from tu_entrega_app.utils.constants import ApiConstants
 from tu_entrega_app.utils.constants import Status_Ticket as Status_Values
-from tu_entrega_app.models import Contact, User, Messenger, Status_Ticket
+from tu_entrega_app.models import Contact, User, Messenger, Status_Ticket, MessengerAvailable
 
 class Ticket(models.Model):
     product = models.CharField(max_length=100)
@@ -16,6 +16,8 @@ class Ticket(models.Model):
     owner = models.ForeignKey(User, on_delete=models.RESTRICT, related_name= 'owner_tickets')
 
     messenger = models.ForeignKey(Messenger, on_delete=models.RESTRICT, related_name= 'messenger_tickets', null=True, blank=True)
+
+    messenger_available_list = models.ManyToManyField(to=MessengerAvailable, blank=True, related_name="messengers_available")
 
     status = models.ManyToManyField(to=Status_Ticket, blank=True, related_name="status_ticket")
 

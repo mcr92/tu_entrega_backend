@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from django.db import transaction
 from fcm_django.models import FCMDevice
-from tu_entrega_app.models import User, Ticket, Status_Ticket, Messenger
+from tu_entrega_app.models import User, Ticket, Status_Ticket, Messenger, MessengerAvailable
 from tu_entrega_app.services.serializers.ticket_serializer import TicketCreateSerializer
 from tu_entrega_app.utils.constants import ApiConstants
 logger = logging.getLogger('django')
@@ -66,13 +66,13 @@ class TicketService:
 
         try:
             with transaction.atomic():
-                status_ticket = Status_Ticket.objects.create(status=ApiConstants.Status_Ticket.ACEPTADO.value[0])
-                ticket.status.add(status_ticket)
+                messenger = MessengerAvailable.objects.create(
+                    messenger = messenger,
+                    amount = request.data.get('amount')
+                )
 
-                ticket.messenger = messenger
-                ticket.save(update_fields=["messenger"])
+                ticket.messenger_available_list.add(messenger)
 
                 return Response(status=status.HTTP_204_NO_CONTENT)
-        except Exception as error:
-            print("error: ", error)
-            return Response({"messenger": "No se pudo actualizar el estado de esta factura. Vuelva a intentar."}, status=status.HTTP_409_CONFLICT)
+        except Exception:
+            return Response({"messenger": "No se pudo seleccionar esta factura. Vuelva a intentar."}, status=status.HTTP_409_CONFLICT)

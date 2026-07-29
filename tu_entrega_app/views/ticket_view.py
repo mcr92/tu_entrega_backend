@@ -3,10 +3,10 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.filters import SearchFilter, OrderingFilter
 from drf_spectacular.utils import extend_schema, inline_serializer
-from rest_framework.serializers import CharField
+from rest_framework.serializers import CharField, DecimalField
 from tu_entrega_app.models import Ticket
 from tu_entrega_app.services.serializers.ticket_serializer import TicketSerializer, TicketCreateSerializer
-from tu_entrega_app.views.requests.ticket_request import CreateRequest
+from tu_entrega_app.views.requests.ticket_request import CreateRequest, AcceptRequest
 from tu_entrega_app.services.ticket_service import TicketService
 
 
@@ -42,7 +42,13 @@ class TicketView(viewsets.ModelViewSet):
 
     @extend_schema(
             operation_id="ticket_accept",
-            request = None,
+            request = inline_serializer(
+                    name="Ticket_Accept",
+                    fields={
+                        "amount": DecimalField(max_digits=5, decimal_places=2)
+                    }
+                )
+            ,
             responses={
             204: None,
             404: inline_serializer(
@@ -62,4 +68,7 @@ class TicketView(viewsets.ModelViewSet):
     )
     @action(detail=True, methods=["post"])
     def accept(self, request, pk = None):
+        validator = AcceptRequest(request)
+        if not validator.is_valid:
+            return validator.error_response     
         return TicketService.process_accept(request, pk)

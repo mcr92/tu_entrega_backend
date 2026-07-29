@@ -22,4 +22,15 @@ class CreateRequest(RequestValidator):
         }
         super().__init__(request, self.allow_empty, self.required_keys, self.validators)
 
+class AcceptRequest(RequestValidator):
+    def __init__(self, request):
+        self.required_keys = {
+            "amount"
+            }
+        self.allow_empty = False
+        self.validators = {
+            'amount': super().validate_decimal
+        }
+        super().__init__(request, self.allow_empty, self.required_keys, self.validators)
+
 

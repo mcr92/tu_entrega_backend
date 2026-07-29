@@ -43,8 +43,7 @@ class TicketCreateSerializer(serializers.ModelSerializer):
     currency = serializers.CharField(read_only = False, help_text=f"{[values for values in ApiConstants.Currency.items()]}", default="USD")
     payment_method = serializers.CharField(read_only = False, help_text=f"{[values for values in ApiConstants.Payment_Method.items()]}", default="Efectivo")
     status = serializers.CharField(read_only = True, help_text=f"{[values for values in ApiConstants.Status_Ticket.items()]}", default="Pendiente")
-    owner = UserUpdateSerializer(read_only = False)
-
+    
     class Meta:
         model = Ticket
         fields = ["product", "price", "owner", "currency", "payment_method", "price_save", "delivery_contact", "collection_contact", "status"]
