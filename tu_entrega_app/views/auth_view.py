@@ -35,19 +35,19 @@ logger = logging.getLogger('django')
             401: inline_serializer(
                 name="Error Response",
                 fields={
-                    "message": CharField()
+                    "detail": CharField()
                     },
             ),
             404: inline_serializer(
                 name="Error Response",
                 fields={
-                    "message": CharField()
+                    "detail": CharField()
                     },
             ),
             409: inline_serializer(
                 name="Error Response",
                 fields={
-                    "message": CharField()
+                    "detail": CharField()
                     },
             ),
             
