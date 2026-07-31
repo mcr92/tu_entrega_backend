@@ -27,7 +27,7 @@ class ErrorResponse(JsonResponse):
         http_code = http_code or HTTPStatus.INTERNAL_SERVER_ERROR.value
         error_response_data = {
             'code': internal_code or ApiError.CODE_INTERNAL_ERROR.value,
-            'message': message or ApiError.CODE_INTERNAL_ERROR.description,
+            'detail': message or ApiError.CODE_INTERNAL_ERROR.description,
             'param': field or '',
         }
         super().__init__(error_response_data, status=http_code)

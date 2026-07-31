@@ -21,7 +21,7 @@ class AuthService:
 
         is_block = BlockPlayer.objects.filter(player_blocked__phone=phone).exists()
         if is_block:
-            return Response({"message":"Este usuario esta bloqueado, contacta a los administradores."}, status=status.HTTP_409_CONFLICT)
+            return Response({"detail":"Este usuario esta bloqueado, contacta a los administradores."}, status=status.HTTP_409_CONFLICT)
         
         exist = User.objects.filter(phone=phone).exists()
 
@@ -54,13 +54,13 @@ class AuthService:
                 check = check_password(password, user.password)
                 if not check:
                     return Response(data={
-                        "message":"Contraseña incorrecta. Vuelva a intentar."
+                        "detail":"Contraseña incorrecta. Vuelva a intentar."
                         }, status=status.HTTP_401_UNAUTHORIZED)    
 
                 user_auth = authenticate(phone=phone, password=password)
                 if not user_auth:
                     return Response(data={
-                        "message":"Contraseña incorrecta. Vuelva a intentar."
+                        "detail":"Contraseña incorrecta. Vuelva a intentar."
                         }, status=status.HTTP_401_UNAUTHORIZED)
 
             user.lastTimeInSystem = timezone.now()
@@ -100,8 +100,7 @@ class AuthService:
             fcm_token = request.data.get("fcm_token")
             if str(fcm_token).strip() == "":
                 return Response(
-                    {"status":'error',
-                     "message": "El token es requerido"}, 
+                    {"detail": "El token es requerido"}, 
                     status=status.HTTP_400_BAD_REQUEST
                 )
             FCMDevice.objects.update_or_create(
