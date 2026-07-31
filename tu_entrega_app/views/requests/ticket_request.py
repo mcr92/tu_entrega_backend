@@ -19,6 +19,7 @@ class CreateRequest(RequestValidator):
             'price_save': super().validate_decimal,
             'delivery_contact': super().validate_json,
             'collection_contact': super().validate_json,
+            'status': [super().allow_empty_value, (super().validate_in_array, ApiConstants.Status_Ticket.choices())],
         }
         super().__init__(request, self.allow_empty, self.required_keys, self.validators)
 
