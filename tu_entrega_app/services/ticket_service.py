@@ -34,7 +34,7 @@ class TicketService:
                     ticket = serializer.save()
                     status_ticket = Status_Ticket.objects.create(status=ApiConstants.Status_Ticket.PENDIENTE.value[0])
                     ticket.status.add(status_ticket)
-                    return Response({"data" : serializer.data}, status=status.HTTP_201_CREATED)
+                    return Response(data= serializer.data, status=status.HTTP_201_CREATED)
                 else:
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception as error:
