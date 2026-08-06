@@ -58,7 +58,7 @@ class ApiExceptionReporter(ExceptionReporter):
 
 class LogHandlerDiscord(AdminEmailHandler):
     def emit(self, record):
-        from dominoapp.connectors.discord_connector import DiscordConnector
+        from tu_entrega_app.connectors.discord_connector import DiscordConnector
         message = self.format(record)
         if record.exc_info:
             exc_type, exc_value, tb = record.exc_info

@@ -1,11 +1,13 @@
 import logging
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 from django.db import transaction
 from fcm_django.models import FCMDevice
 from firebase_admin.messaging import Message, Notification
 from tu_entrega_app.models import User, Ticket, Status_Ticket, Messenger, MessengerAvailable
 from tu_entrega_app.services.serializers.ticket_serializer import TicketCreateSerializer
+from tu_entrega_app.services.serializers.messenger_available_serializaer import MessengerAvailableSerializer
 from tu_entrega_app.utils.constants import ApiConstants
 from tu_entrega_app.utils.tickets_utils import find_nearby_messengers
 logger = logging.getLogger('django')
@@ -159,3 +161,38 @@ class TicketService:
                 return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as error:
             return Response({"detail": "No se pudo seleccionar esta factura. Vuelva a intentar."}, status=status.HTTP_409_CONFLICT)
+
+
+    @staticmethod
+    def process_messenger_list(request,ticket_id):
+
+        try:
+            user = User.objects.get(id = request.user.id)
+        except:
+            return Response({"detail": "Usuario no encontrado."}, status=status.HTTP_404_NOT_FOUND)
+
+        if user.is_block:
+            return Response({"detail":"Este usuario esta bloqueado, contacta a los administradores."}, status=status.HTTP_409_CONFLICT)
+
+        try:
+            ticket = Ticket.objects.get(id = ticket_id)
+        except:
+            return Response({"detail": "Factura no encontrada."}, status=status.HTTP_404_NOT_FOUND)
+
+        if ticket.owner.id != user.id:
+            return Response({"detail": "No tienes permisos para realizar esta operación."}, status=status.HTTP_409_CONFLICT)
+
+        paginator = PageNumberPagination()
+        page_size = request.query_params.get("page_size", 10)
+        paginator.page_size = page_size
+
+        try:
+            messenger_list = ticket.messenger_available_list.all()
+            result_page = paginator.paginate_queryset(messenger_list, request)
+
+            response_serialiser = MessengerAvailableSerializer(result_page, many=True)
+
+            return paginator.get_paginated_response(response_serialiser.data)
+        except Exception as error:
+            return Response({"detail": "No se pudo seleccionar esta factura. Vuelva a intentar."}, status=status.HTTP_409_CONFLICT)
+    
