@@ -107,3 +107,55 @@ class TicketService:
                 return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception:
             return Response({"detail": "No se pudo seleccionar esta factura. Vuelva a intentar."}, status=status.HTTP_409_CONFLICT)
+
+    @staticmethod
+    def process_confirm_messenger(request,ticket_id, messenger_id):
+
+        try:
+            user = User.objects.get(id = request.user.id)
+        except:
+            return Response({"detail": "Usuario no encontrado."}, status=status.HTTP_404_NOT_FOUND)
+
+        if user.is_block:
+            return Response({"detail":"Este usuario esta bloqueado, contacta a los administradores."}, status=status.HTTP_409_CONFLICT)
+
+        try:
+            ticket = Ticket.objects.get(id = ticket_id)
+        except:
+            return Response({"detail": "Factura no encontrada."}, status=status.HTTP_404_NOT_FOUND)
+
+        if ticket.owner.id != user.id:
+            return Response({"detail": "No tienes permisos para realizar esta operación."}, status=status.HTTP_409_CONFLICT)
+
+        try:
+            messenger_available = MessengerAvailable.objects.get(id = messenger_id)
+        except:
+            return Response({"detail":"No se pudo encontrar este mensajero."}, status=status.HTTP_404_NOT_FOUND)
+
+        if ticket.messenger:
+            return Response({"detail": "Esta factura ya se le asignó a un mensajero."}, status=status.HTTP_409_CONFLICT)
+
+        try:
+            with transaction.atomic():
+                ticket.messenger = messenger_available.messenger
+                ticket.save(update_fields=["messenger"])
+
+                status_ticket = Status_Ticket.objects.create(status=ApiConstants.Status_Ticket.ACEPTADO.value[0])
+                ticket.status.add(status_ticket)
+
+                try:
+                    FCMDevice.objects.filter(user__id = messenger_available.messenger.user.id).send_message(
+                        Message(
+                            notification= Notification(
+                                title="Mensajero seleccionado",
+                                body=f"Ha sido seleccionado para realizar la entrega de la factura {ticket.product}.",
+                            ),
+                            data={"ticket_id": ticket.id}
+                        )
+                    )
+                except Exception as error:
+                    logger.error(f"Error al enviar notificación push al confirmar mensajero. Error: {str(error)}")
+
+                return Response(status=status.HTTP_204_NO_CONTENT)
+        except Exception as error:
+            return Response({"detail": "No se pudo seleccionar esta factura. Vuelva a intentar."}, status=status.HTTP_409_CONFLICT)

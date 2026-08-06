@@ -5,10 +5,10 @@ from tu_entrega_app.models import Contact, User, Messenger, Status_Ticket, Messe
 
 class Ticket(models.Model):
     product = models.CharField(max_length=100)
-    price = models.DecimalField(max_digits=5, decimal_places=2)
+    price = models.DecimalField(max_digits=11, decimal_places=2)
     currency = models.IntegerField(db_index=True, null=False, default=1, choices=ApiConstants.Currency.choices())
     payment_method = models.IntegerField(db_index=True, null=False, default=1, choices=ApiConstants.Payment_Method.choices())
-    price_save = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True) ## Valor que debe dejar el mensajero de fondo
+    price_save = models.DecimalField(max_digits=11, decimal_places=2, null=True, blank=True) ## Valor que debe dejar el mensajero de fondo
 
     delivery_contact = models.ForeignKey(Contact, on_delete=models.RESTRICT, related_name= 'delivery_contact') 
     collection_contact = models.ForeignKey(Contact, on_delete=models.RESTRICT, related_name= 'collection_contact')

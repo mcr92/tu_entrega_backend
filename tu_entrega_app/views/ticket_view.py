@@ -72,3 +72,28 @@ class TicketView(viewsets.ModelViewSet):
         if not validator.is_valid:
             return validator.error_response     
         return TicketService.process_accept(request, pk)
+
+    @extend_schema(
+                operation_id="confirm_messenger",
+                request = None
+                ,
+                responses={
+                204: None,
+                404: inline_serializer(
+                    name="Error Response",
+                    fields={
+                        "detail": CharField()
+                        },
+                ),
+                409: inline_serializer(
+                    name="Error Response",
+                    fields={
+                        "detail": CharField()
+                        },
+                ),
+                
+            }
+        )
+    @action(detail=True, methods=["post"], url_path="messenger/(?P<messenger_id>[^/.]+)")
+    def confirm_messenger(self, request, pk = None, messenger_id=None):
+        return TicketService.process_confirm_messenger(request, pk, messenger_id)
