@@ -206,3 +206,24 @@ try:
     }
 except:
     pass
+
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        "discord_error": {
+            "class": "tu_entrega_app.utils.api_logger.LogHandlerDiscord",
+            'include_html': False,
+            'level': 'ERROR'
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['discord_error'],
+            'level': 'ERROR',
+            'propagate': False,
+        }
+    },
+}

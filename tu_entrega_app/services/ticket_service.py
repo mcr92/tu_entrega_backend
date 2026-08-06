@@ -3,9 +3,11 @@ from rest_framework import status
 from rest_framework.response import Response
 from django.db import transaction
 from fcm_django.models import FCMDevice
+from firebase_admin.messaging import Message, Notification
 from tu_entrega_app.models import User, Ticket, Status_Ticket, Messenger, MessengerAvailable
 from tu_entrega_app.services.serializers.ticket_serializer import TicketCreateSerializer
 from tu_entrega_app.utils.constants import ApiConstants
+from tu_entrega_app.utils.tickets_utils import find_nearby_messengers
 logger = logging.getLogger('django')
 
 class TicketService:
@@ -34,6 +36,22 @@ class TicketService:
                     ticket = serializer.save()
                     status_ticket = Status_Ticket.objects.create(status=ApiConstants.Status_Ticket.PENDIENTE.value[0])
                     ticket.status.add(status_ticket)
+
+                    if ticket.collection_contact.lat and ticket.collection_contact.lng:
+                        try:
+                            messenger_nearby = find_nearby_messengers(ticket.collection_contact.lat, ticket.collection_contact.lng)
+                            FCMDevice.objects.filter(user__id__in=[messenger.user.id for messenger in messenger_nearby]).send_message(
+                                Message(
+                                    notification= Notification(
+                                        title="Nueva factura disponible",
+                                        body=f"Se ha creado una nueva factura para el producto {ticket.product}.",
+                                    ),
+                                    data={"ticket_id": ticket.id}
+                                )
+                            )
+                        except Exception as error:
+                            logger.error(f"Error al enviar notificación push al crear ticket. Error: {str(error)}")
+
                     return Response(data= serializer.data, status=status.HTTP_201_CREATED)
                 else:
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -72,6 +90,19 @@ class TicketService:
                 )
 
                 ticket.messenger_available_list.add(messenger)
+
+                try:
+                    FCMDevice.objects.filter(user__id = ticket.owner.id).send_message(
+                        Message(
+                            notification= Notification(
+                                title="Factura aceptada",
+                                body=f"El mensajero {messenger.messenger.user.name} ha aceptado la factura {ticket.product}.",
+                            ),
+                            data={"ticket_id": ticket.id}
+                        )
+                    )
+                except Exception as error:
+                    logger.error(f"Error al enviar notificación push al acceptar ticket. Error: {str(error)}")
 
                 return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception:
