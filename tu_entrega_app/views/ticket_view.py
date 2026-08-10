@@ -47,6 +47,31 @@ class TicketView(viewsets.ModelViewSet):
         return TicketService.process_create(request)
 
     @extend_schema(
+            operation_id="ticket_canceled",
+            request = None,
+            responses={
+            204: None,
+            404: inline_serializer(
+                name="Error Response",
+                fields={
+                    "detail": CharField()
+                    },
+            ),
+            409: inline_serializer(
+                name="Error Response",
+                fields={
+                    "detail": CharField()
+                    },
+            ),
+            
+        }
+    )
+    @action(detail=True, methods=["post"])
+    def canceled(self, request, pk = None):    
+        return TicketService.process_accept(request, pk)
+    
+
+    @extend_schema(
             operation_id="ticket_accept",
             request = inline_serializer(
                     name="Ticket_Accept",
