@@ -1,15 +1,17 @@
-import logging
+import logging, os
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from django.db import transaction
 from fcm_django.models import FCMDevice
 from firebase_admin.messaging import Message, Notification
+from decimal import Decimal
 from tu_entrega_app.models import User, Ticket, Status_Ticket, Messenger, MessengerAvailable
 from tu_entrega_app.services.serializers.ticket_serializer import TicketCreateSerializer
 from tu_entrega_app.services.serializers.messenger_available_serializaer import MessengerAvailableSerializer
 from tu_entrega_app.utils.constants import ApiConstants
 from tu_entrega_app.utils.tickets_utils import find_nearby_messengers
+from tu_entrega_app.utils.transactions_utils import create_transactions
 logger = logging.getLogger('django')
 
 class TicketService:
@@ -84,11 +86,22 @@ class TicketService:
         if ticket.last_status != ApiConstants.Status_Ticket.PENDIENTE.value[1]:
             return Response({"detail": "Esta factura ya no esta disponible."}, status=status.HTTP_409_CONFLICT)
 
+        trip_amount = Decimal(request.data.get('amount',0))
+        try:
+            messenger_fee = int(os.getenv("MESSENGER_FEE", 0))  ## % de descuento para los mensajeros
+        except:
+            logger.critical("No se introdujo ningun valor en el porciento de descuento de los mensajeros.")
+            messenger_fee = 0
+        
+        messenger_amount = Decimal(trip_amount*messenger_fee/100)
+        if messenger.user.coins < messenger_amount and messenger.free_trip == 0:
+            return Response({"detail":"No tienes fondos suficientes. Recargue su cuenta y vuelva a intentar."}, status=status.HTTP_409_CONFLICT)
+
         try:
             with transaction.atomic():
                 messenger = MessengerAvailable.objects.create(
                     messenger = messenger,
-                    amount = request.data.get('amount')
+                    amount = trip_amount
                 )
 
                 ticket.messenger_available_list.add(messenger)
@@ -144,8 +157,6 @@ class TicketService:
         except Exception as error:
             return Response({"detail": "No se pudo cancelar esta factura. Vuelva a intentar."}, status=status.HTTP_409_CONFLICT)
 
-
-
     @staticmethod
     def process_confirm_messenger(request,ticket_id, messenger_id):
 
@@ -173,13 +184,36 @@ class TicketService:
         if ticket.messenger:
             return Response({"detail": "Esta factura ya se le asignó a un mensajero."}, status=status.HTTP_409_CONFLICT)
 
+        messenger = messenger_available.messenger
+        trip_amount = messenger_available.amount
+        messenger_fee = os.getenv("MESSENGER_FEE", 0)  ## % de descuento para los mensajeros
+        messenger_amount = Decimal(trip_amount*int(messenger_fee)/100)
+
+        if messenger.user.coins < messenger_amount and messenger.free_trip == 0:
+            return Response({"detail":"Este mensajero no esta disponible en estos momentos."}, status=status.HTTP_409_CONFLICT)
+
         try:
             with transaction.atomic():
-                ticket.messenger = messenger_available.messenger
+                ticket.messenger = messenger
                 ticket.save(update_fields=["messenger"])
 
                 status_ticket = Status_Ticket.objects.create(status=ApiConstants.Status_Ticket.ACEPTADO.value[0])
                 ticket.status.add(status_ticket)
+
+                if messenger.free_trip == 0:
+                    messenger.user.coins -= messenger_amount
+                    messenger.user.save(update_fields=["coins"])
+
+                    create_transactions(
+                        amount=messenger_amount,
+                        from_user= messenger.user,
+                        status= ApiConstants.TransactionStatus.TRANSACTION_COMPLETED.value[0],
+                        type= ApiConstants.TransactionType.TRANSACTION_TRIP.value[0],
+                        descriptions= f"Se le asigno el envio del producto {ticket.id} con un costo de mensajeria de {str(trip_amount)} pesos."
+                    )
+                else:
+                    messenger.free_trip -= 1
+                    messenger.save(update_fields=["free_trip"])
 
                 try:
                     FCMDevice.objects.filter(user__id = messenger_available.messenger.user.id).send_message(

@@ -70,7 +70,6 @@ class TicketView(viewsets.ModelViewSet):
     def canceled(self, request, pk = None):    
         return TicketService.process_accept(request, pk)
     
-
     @extend_schema(
             operation_id="ticket_accept",
             request = inline_serializer(
@@ -128,7 +127,6 @@ class TicketView(viewsets.ModelViewSet):
     @action(detail=True, methods=["post"], url_path="messenger/(?P<messenger_id>[^/.]+)")
     def confirm_messenger(self, request, pk = None, messenger_id=None):
         return TicketService.process_confirm_messenger(request, pk, messenger_id)
-
     
     @extend_schema(
                 operation_id="messengers_list",
