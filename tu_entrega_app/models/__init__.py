@@ -6,4 +6,8 @@ from tu_entrega_app.models.models.contact import Contact
 from tu_entrega_app.models.models.status_ticket import Status_Ticket
 from tu_entrega_app.models.models.messenger_available import MessengerAvailable
 from tu_entrega_app.models.models.ticket import Ticket
+from tu_entrega_app.models.models.status_payment import Status_Payment
+from tu_entrega_app.models.models.payments import Payment
+from tu_entrega_app.models.models.status_transaction import Status_Transaction
+from tu_entrega_app.models.models.transactions import Transaction
 

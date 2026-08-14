@@ -105,6 +105,24 @@ class Status_Ticket(Enum):
     ENTREGADO = 4, 'Entregado'
     CANCELADO = 5, 'Cancelado'
 
+class TransactionStatus(Enum):
+    TRANSACTION_PENDING = 1, "Pendiente"
+    TRANSACTION_IN_PROCESS = 2, "En Proceso"
+    TRANSACTION_COMPLETED = 3, "Completado"
+    TRANSACTION_CANCELED = 4, "Cancelado"
+
+class TransactionType(Enum):
+    TRANSACTION_RELOAD = 1, "Recarga"
+    TRANSACTION_PROMOTION = 2, "Promoción"
+    TRANSACTION_TRANSFER = 3, "Transferencia"
+    TRANSACTION_TRIP = 4, "Viajes"
+    TRANSACTION_EXTRACTION = 5, "Retiro"
+
+class PaymentStatus(Enum):
+    Payment_PENDING = 1, "Pendiente"
+    Payment_PAID = 2, "Pagado"
+    Payment_CANCELED = 3, "Cancelado"
+
 class ApiConstants:
     DEFAULT_CURRENCY = 'usd'
     DEFAULT_LANGUAGE = 'es'
@@ -117,3 +135,6 @@ class ApiConstants:
     Currency = EnumBehavior.set_enum(Currency)
     Payment_Method = EnumBehavior.set_enum(Payment_Method)
     Status_Ticket = EnumBehavior.set_enum(Status_Ticket)
+    TransactionStatus = EnumBehavior.set_enum(TransactionStatus)
+    TransactionType = EnumBehavior.set_enum(TransactionType)
+    PaymentStatus = EnumBehavior.set_enum(PaymentStatus)

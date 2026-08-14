@@ -9,6 +9,7 @@ class Messenger(models.Model):
     km_rate = models.DecimalField(max_digits=11, decimal_places=2, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    free_trip = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.user.name if self.user.name else self.user.phone

@@ -34,4 +34,15 @@ class Ticket(models.Model):
             return ApiConstants.Status_Ticket.get(int(status_obj.status))
         
         return ApiConstants.Status_Ticket.get(int(Status_Values.PENDIENTE[1]))
+
+    @property
+    def paymentmethod_str(self):
+        if self.payment_method:
+            return ApiConstants.Payment_Method.get(int(self.payment_method))
+        return "-"
     
+    @property
+    def currency_str(self):
+        if self.currency:
+            return ApiConstants.Currency.get(int(self.currency))
+        return "-"

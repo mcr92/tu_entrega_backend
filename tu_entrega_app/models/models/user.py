@@ -61,6 +61,7 @@ class User(AbstractUser):
     inactive_player = models.BooleanField(default=False)
     lastTimeInSystem = models.DateTimeField(default=timezone.now)
     timezone = models.CharField(max_length=200, null=False, db_index=True, default='America/Havana')
+    coins = models.DecimalField(max_digits=11, decimal_places=2, default=0)
 
 
     USERNAME_FIELD = "phone"
